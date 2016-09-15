@@ -28,6 +28,13 @@ int getAscii(FILE *fr, char *temp, FILE *fw)
   return(t);
 }
 
+int getByte(FILE *fr, char *temp, FILE *fw)
+{
+  int c = fgetc(fr);
+  int t = (int) c;
+  //printf("%i", t);
+  return(t);
+}
 //Main Method
 int main(int argc, char *argv[]) {
 
@@ -158,11 +165,11 @@ int main(int argc, char *argv[]) {
     {
     for (col = 0; col < w; col += 1)
       {
-        image[w*row + col].r = getAscii(fr,temp,fw);
+        image[w*row + col].r = getByte(fr,temp,fw);
         printf("%i ", image[w*row + col].r);
-        image[w*row + col].g = getAscii(fr,temp,fw);
+        image[w*row + col].g = getByte(fr,temp,fw);
         printf("%i ", image[w*row + col].g);
-        image[w*row + col].b = getAscii(fr,temp,fw);
+        image[w*row + col].b = getByte(fr,temp,fw);
         //printf("\n");
         printf("%i  ", image[w*row + col].b);
       }
