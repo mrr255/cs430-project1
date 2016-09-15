@@ -47,8 +47,10 @@ int main(int argc, char *argv[]) {
   FILE* fr = fopen(argv[2], "r"); // File Read
   FILE* fw = fopen(argv[3], "w"); // File Write
 
+  printf("%i\n", atoi(argv[1]));
   //Parse Header
   int c = fgetc(fr); // Get 'P'
+  int fileType = 0;
   if (c != 'P')
     {
     fprintf(stderr, "%s\n", "Error: file not of type ppm or header not formatted correctly.");
@@ -57,10 +59,12 @@ int main(int argc, char *argv[]) {
   c = fgetc(fr); // Get 'X' -- Should be 3 or 6
   if( c == '3')
     {
+      fileType = c;
     //printf("Type 3\n"); //Debug Output
     }
   else if( c == '6')
     {
+      fileType = c;
     //printf("Type 6\n"); //Debug Output
     }
   else
@@ -157,24 +161,46 @@ int main(int argc, char *argv[]) {
   //Prepare memory for image data
   Pixel *image;
   image = malloc(sizeof(Pixel) * w * h);
-  unsigned char temp[5];
-
-  //Populate Image data
-  int row, col;
-  for (row = 0; row < h; row += 1)
-    {
-    for (col = 0; col < w; col += 1)
+  unsigned char temp[32];
+  //printf("%s\n", argv[1]);
+  if (fileType == 3) {
+    //Populate Image data
+    int row, col;
+    for (row = 0; row < h; row += 1)
       {
-        image[w*row + col].r = getByte(fr,temp,fw);
-        printf("%i ", image[w*row + col].r);
-        image[w*row + col].g = getByte(fr,temp,fw);
-        printf("%i ", image[w*row + col].g);
-        image[w*row + col].b = getByte(fr,temp,fw);
-        //printf("\n");
-        printf("%i  ", image[w*row + col].b);
+      for (col = 0; col < w; col += 1)
+        {
+          image[w*row + col].r = getAscii(fr,temp,fw);
+          printf("%i ", image[w*row + col].r);
+          image[w*row + col].g = getAscii(fr,temp,fw);
+          printf("%i ", image[w*row + col].g);
+          image[w*row + col].b = getAscii(fr,temp,fw);
+          //printf("\n");
+          printf("%i  ", image[w*row + col].b);
+        }
+        printf("\n");
       }
-      printf("\n");
-    }
+
+  } else {
+    //Populate Image data
+    int row, col;
+    for (row = 0; row < h; row += 1)
+      {
+      for (col = 0; col < w; col += 1)
+        {
+          image[w*row + col].r = getByte(fr,temp,fw);
+          printf("%i ", image[w*row + col].r);
+          image[w*row + col].g = getByte(fr,temp,fw);
+          printf("%i ", image[w*row + col].g);
+          image[w*row + col].b = getByte(fr,temp,fw);
+          //printf("\n");
+          printf("%i  ", image[w*row + col].b);
+        }
+        printf("\n");
+      }
+
+  }
+  //fwrite(image,sizeof(Pixel),w*h,fw);
 
 return (0);
 }
