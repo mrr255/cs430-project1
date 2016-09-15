@@ -17,7 +17,7 @@ int getAscii(FILE *fr, char *temp, FILE *fw)
 {
   int c = fgetc(fr);
   int i = 0;
-  while(c != '\n')
+  while(c != '\n' && c != ' ' && c != '\t')
   {
     temp[i]=c;
     i+=1;
@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
   //Open File Handles
   FILE* fr = fopen(argv[2], "r"); // File Read
   FILE* fw = fopen(argv[3], "w"); // File Write
-
-  printf("%i\n", atoi(argv[1]));
+  int destType = atoi(argv[1]);
+  printf("%i\n", destType);
   //Parse Header
   int c = fgetc(fr); // Get 'P'
   int fileType = 0;
@@ -59,12 +59,12 @@ int main(int argc, char *argv[]) {
   c = fgetc(fr); // Get 'X' -- Should be 3 or 6
   if( c == '3')
     {
-      fileType = c;
+      fileType = 3;
     //printf("Type 3\n"); //Debug Output
     }
   else if( c == '6')
     {
-      fileType = c;
+      fileType = 6;
     //printf("Type 6\n"); //Debug Output
     }
   else
@@ -171,12 +171,12 @@ int main(int argc, char *argv[]) {
       for (col = 0; col < w; col += 1)
         {
           image[w*row + col].r = getAscii(fr,temp,fw);
-          printf("%i ", image[w*row + col].r);
+          printf("%d ", image[w*row + col].r);
           image[w*row + col].g = getAscii(fr,temp,fw);
-          printf("%i ", image[w*row + col].g);
+          printf("%d ", image[w*row + col].g);
           image[w*row + col].b = getAscii(fr,temp,fw);
           //printf("\n");
-          printf("%i  ", image[w*row + col].b);
+          printf("%d  ", image[w*row + col].b);
         }
         printf("\n");
       }
@@ -200,7 +200,28 @@ int main(int argc, char *argv[]) {
       }
 
   }
-  //fwrite(image,sizeof(Pixel),w*h,fw);
 
+  if(destType == 3)
+  {
+    int row, col;
+    for (row = 0; row < h; row += 1)
+      {
+      for (col = 0; col < w; col += 1)
+        {
+          fprintf(fw,"%i\n", image[w*row + col].r);
+
+          fprintf(fw, "%i\n", image[w*row + col].g);
+
+          fprintf(fw, "%i\n", image[w*row + col].b);
+        }
+      }
+  }
+  else if(destType == 6)
+  {
+    fwrite(image,sizeof(Pixel),w*h,fw);
+  }
+  else{
+
+  }
 return (0);
 }
