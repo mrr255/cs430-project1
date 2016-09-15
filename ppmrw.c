@@ -3,23 +3,44 @@
 //CS430 Project 1
 
 
-// Header Includes:
+//Header Includes:
 #include <stdlib.h>
 #include <stdio.h>
+
+//Define Structures
+typedef struct Pixel {
+  unsigned char r, g, b;
+} Pixel;
+
+
+int getAscii(FILE *fr, char *temp, FILE *fw)
+{
+  int c = fgetc(fr);
+  int i = 0;
+  while(c != '\n')
+  {
+    temp[i]=c;
+    i+=1;
+    c = fgetc(fr);
+  }
+  int t = atoi(temp);
+  //printf("%i", t);
+  return(t);
+}
 
 //Main Method
 int main(int argc, char *argv[]) {
 
-// Check for appropriate arguments
+  //Check for appropriate arguments
   if (argc != 4) {
     fprintf(stderr, "Usage: ppmrw typenum input.ppm output.ppm\n");
     return(1);
   }
-//Open File Handles
+  //Open File Handles
   FILE* fr = fopen(argv[2], "r"); // File Read
   FILE* fw = fopen(argv[3], "w"); // File Write
 
-//Parse Header
+  //Parse Header
   int c = fgetc(fr); // Get 'P'
   if (c != 'P')
     {
@@ -125,6 +146,28 @@ int main(int argc, char *argv[]) {
   //Write the max color to the output file
   fprintf(fw,"%i\n",mC);
 
+
+  //Prepare memory for image data
+  Pixel *image;
+  image = malloc(sizeof(Pixel) * w * h);
+  unsigned char temp[5];
+
+  //Populate Image data
+  int row, col;
+  for (row = 0; row < h; row += 1)
+    {
+    for (col = 0; col < w; col += 1)
+      {
+        image[w*row + col].r = getAscii(fr,temp,fw);
+        printf("%i ", image[w*row + col].r);
+        image[w*row + col].g = getAscii(fr,temp,fw);
+        printf("%i ", image[w*row + col].g);
+        image[w*row + col].b = getAscii(fr,temp,fw);
+        //printf("\n");
+        printf("%i  ", image[w*row + col].b);
+      }
+      printf("\n");
+    }
 
 return (0);
 }
