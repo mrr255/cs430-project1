@@ -13,6 +13,9 @@ int main(int argc, char *argv[]) {
 
   FILE* fh = fopen(argv[2], "r");
   FILE* fw = fopen(argv[3], "w");
+
+  fprintf(fw, "P%s\n",argv[1]);
+
   int c = fgetc(fh);
   if (c != 'P')
     fprintf(stderr, "%s\n", "Error: file not of type ppm or header not formatted correctly.");
@@ -21,7 +24,7 @@ int main(int argc, char *argv[]) {
   printf("Type 3\n");
   else if( c == '6'){
   printf("Type 6\n");
-  fprintf(fw, "P6\n");
+  //fprintf(fw, "P6\n");
 }
   else
     fprintf(stderr, "%s\n", "Error: file not of type ppm or header not formatted correctly.");
@@ -74,6 +77,20 @@ int main(int argc, char *argv[]) {
     fprintf(fw, "%i ", h);
     fprintf(fw, "%i\n", w);
 
+    printf("%s\n", "maxColor");
+    char *maxColor;
+    maxColor = malloc(16 * 5);
+    i = 0;
+    c = fgetc(fh);
+    while(c != '\n'){
+      maxColor[i] = c;
+      printf("%c\n", c);
+      i+=1;
+      c = fgetc(fh);
+    }
+    int mC = atoi(maxColor);
+    printf("%i\n",mC);
+    fprintf(fw,"%i\n",mC);
 
 
 return (0);
