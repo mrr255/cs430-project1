@@ -8,46 +8,90 @@
 #include <stdio.h>
 
 //Define Structures
-typedef struct Pixel {
+typedef struct Pixel
+  {
   unsigned char r, g, b;
-} Pixel;
+  } Pixel;
 
-
+// Helper method to parse from Ascii
 int getAscii(FILE *fr, char *temp, FILE *fw)
-{
+  {
   int c = fgetc(fr);
   int i = 0;
-  while(c != '\n' && c != ' ' && c != '\t')
-  {
-    temp[i]=c;
+  while(c != '\n' && c != ' ' && c != '\t') //Collect all characters before whitespace
+    {
+    temp[i]=c; //Add it to a buffer
     i+=1;
     c = fgetc(fr);
+    if(i>3)
+    {
+    fprintf(stderr, "%s\n", "Error: file not of type declared in format header");
+    exit(1);
+    }
+    }
+  int t = atoi(temp); //Convert to an integer
+
+  if(t > 255)
+    {
+    fprintf(stderr, "%s\n", "Error: multibyte color is not supported.");
+    return(1);
+    }
+  //printf("%i", t); //Debug Output
+  return(t);
   }
-  int t = atoi(temp);
-  //printf("%i", t);
-  return(t);
-}
 
+//Helper method to parse from Raw data
 int getByte(FILE *fr, char *temp, FILE *fw)
-{
-  int c = fgetc(fr);
-  int t = (int) c;
-  //printf("%i", t);
-  return(t);
-}
-//Main Method
-int main(int argc, char *argv[]) {
+  {
+  int c = fgetc(fr); //Grab next character
+  if(c == ' ' || c == '\n')
+  {
+  fprintf(stderr, "%s\n", "Error: file not of type declared in ppm header.");
+  exit(1);
+  }
+  int t = (int) c; //Store as an int
 
-  //Check for appropriate arguments
-  if (argc != 4) {
+  if(t > 255)
+    {
+    fprintf(stderr, "%s\n", "Error: multibyte color is not supported.");
+    return(1);
+    }
+  //printf("%i", t);//Debug Output
+  return(t);
+  }
+
+//Main Method
+int main(int argc, char *argv[])
+  {
+
+  //Check for appropriate number of arguments
+  if (argc != 4)
+    {
     fprintf(stderr, "Usage: ppmrw typenum input.ppm output.ppm\n");
     return(1);
-  }
+    }
+
   //Open File Handles
   FILE* fr = fopen(argv[2], "r"); // File Read
   FILE* fw = fopen(argv[3], "w"); // File Write
+
+  //Check if input file exists
+  if(fr == NULL)
+  {
+  fprintf(stderr, "%s\n", "Error: input file type not found.");
+  return(1);
+  }
+
+  //Check if output file type is supported
   int destType = atoi(argv[1]);
-  printf("%i\n", destType);
+  if(destType != 3 && destType != 6)
+  {
+  fprintf(stderr, "%s\n", "Error: output file type not supported.");
+  return(1);
+  }
+  //printf("%i\n", destType); //Debug output
+
+
   //Parse Header
   int c = fgetc(fr); // Get 'P'
   int fileType = 0;
@@ -78,7 +122,7 @@ int main(int argc, char *argv[]) {
   c = fgetc(fr); //Get '\n'
   //printf("%c\n", c); //Debug Output
 
-  if (c != '\n')
+  if (c != '\n' && c!= ' ' && c!= '\t')
     {
     fprintf(stderr, "%s\n", "Error: file not of type ppm or header not formatted correctly.");
     return(1);
@@ -152,56 +196,61 @@ int main(int argc, char *argv[]) {
     }
   int mC = atoi(maxColor); //Convert character array to an Integer value
 
+  if(mC > 255)
+    {
+    fprintf(stderr, "%s\n", "Error: multibyte color is not supported.");
+    return(1);
+    }
   //printf("%i\n",mC); //Debug Output
 
   //Write the max color to the output file
   fprintf(fw,"%i\n",mC);
 
 
-  //Prepare memory for image data
+  //Parsing of image data
   Pixel *image;
-  image = malloc(sizeof(Pixel) * w * h);
-  unsigned char temp[32];
-  //printf("%s\n", argv[1]);
-  if (fileType == 3) {
-    //Populate Image data
+  image = malloc(sizeof(Pixel) * w * h); //Prepare memory for image data
+  unsigned char temp[32]; //Create buffer for data
+
+  if (fileType == 3) //Collect Ascii Image data
+    {
     int row, col;
     for (row = 0; row < h; row += 1)
       {
-      for (col = 0; col < w; col += 1)
+      for (col = 0; col < w; col += 1) //Itterate through the image and add it to the structures
         {
           image[w*row + col].r = getAscii(fr,temp,fw);
-          printf("%d ", image[w*row + col].r);
+          //printf("%d ", image[w*row + col].r); //Debug Output
           image[w*row + col].g = getAscii(fr,temp,fw);
-          printf("%d ", image[w*row + col].g);
+          //printf("%d ", image[w*row + col].g); //Debug Output
           image[w*row + col].b = getAscii(fr,temp,fw);
-          //printf("\n");
-          printf("%d  ", image[w*row + col].b);
+          //printf("%d  ", image[w*row + col].b); //Debug Output
         }
-        printf("\n");
+        //printf("\n");
       }
-
-  } else {
-    //Populate Image data
+    }
+  else //Collect Raw Image data
+    {
     int row, col;
     for (row = 0; row < h; row += 1)
       {
-      for (col = 0; col < w; col += 1)
+      for (col = 0; col < w; col += 1) //Itterate through the image and add it to the structures
         {
           image[w*row + col].r = getByte(fr,temp,fw);
-          printf("%i ", image[w*row + col].r);
+          //printf("%i ", image[w*row + col].r); //Debug Output
           image[w*row + col].g = getByte(fr,temp,fw);
-          printf("%i ", image[w*row + col].g);
+          //printf("%i ", image[w*row + col].g); //Debug Output
           image[w*row + col].b = getByte(fr,temp,fw);
-          //printf("\n");
-          printf("%i  ", image[w*row + col].b);
+          //printf("%i  ", image[w*row + col].b); //Debug Output
         }
-        printf("\n");
+        //printf("\n");
       }
 
   }
 
-  if(destType == 3)
+
+// Print image data to the output file in either ascii of Raw Data
+  if(destType == 3) //Ascii
   {
     int row, col;
     for (row = 0; row < h; row += 1)
@@ -216,12 +265,14 @@ int main(int argc, char *argv[]) {
         }
       }
   }
-  else if(destType == 6)
+  else if(destType == 6) //Raw data
   {
     fwrite(image,sizeof(Pixel),w*h,fw);
   }
   else{
 
   }
+  fclose(fw);
+  fclose(fr);
 return (0);
 }
