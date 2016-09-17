@@ -24,10 +24,10 @@ int getAscii(FILE *fr, char *temp, FILE *fw)
     i+=1;
     c = fgetc(fr);
     if(i>3)
-    {
-    fprintf(stderr, "%s\n", "Error: file not of type declared in format header");
-    exit(1);
-    }
+      {
+      fprintf(stderr, "%s\n", "Error: file not of type declared in format header");
+      exit(1);
+      }
     }
   int t = atoi(temp); //Convert to an integer
 
@@ -77,18 +77,18 @@ int main(int argc, char *argv[])
 
   //Check if input file exists
   if(fr == NULL)
-  {
-  fprintf(stderr, "%s\n", "Error: input file type not found.");
-  return(1);
-  }
+    {
+    fprintf(stderr, "%s\n", "Error: input file type not found.");
+    return(1);
+    }
 
   //Check if output file type is supported
   int destType = atoi(argv[1]);
   if(destType != 3 && destType != 6)
-  {
-  fprintf(stderr, "%s\n", "Error: output file type not supported.");
-  return(1);
-  }
+    {
+    fprintf(stderr, "%s\n", "Error: output file type not supported.");
+    return(1);
+    }
   //printf("%i\n", destType); //Debug output
 
 
@@ -103,12 +103,12 @@ int main(int argc, char *argv[])
   c = fgetc(fr); // Get 'X' -- Should be 3 or 6
   if( c == '3')
     {
-      fileType = 3;
+    fileType = 3;
     //printf("Type 3\n"); //Debug Output
     }
   else if( c == '6')
     {
-      fileType = 6;
+    fileType = 6;
     //printf("Type 6\n"); //Debug Output
     }
   else
@@ -219,14 +219,14 @@ int main(int argc, char *argv[])
       {
       for (col = 0; col < w; col += 1) //Itterate through the image and add it to the structures
         {
-          image[w*row + col].r = getAscii(fr,temp,fw);
-          //printf("%d ", image[w*row + col].r); //Debug Output
-          image[w*row + col].g = getAscii(fr,temp,fw);
-          //printf("%d ", image[w*row + col].g); //Debug Output
-          image[w*row + col].b = getAscii(fr,temp,fw);
-          //printf("%d  ", image[w*row + col].b); //Debug Output
+        image[w*row + col].r = getAscii(fr,temp,fw);
+        //printf("%d ", image[w*row + col].r); //Debug Output
+        image[w*row + col].g = getAscii(fr,temp,fw);
+        //printf("%d ", image[w*row + col].g); //Debug Output
+        image[w*row + col].b = getAscii(fr,temp,fw);
+        //printf("%d  ", image[w*row + col].b); //Debug Output
         }
-        //printf("\n");
+      //printf("\n"); //Debug Output
       }
     }
   else //Collect Raw Image data
@@ -236,14 +236,14 @@ int main(int argc, char *argv[])
       {
       for (col = 0; col < w; col += 1) //Itterate through the image and add it to the structures
         {
-          image[w*row + col].r = getByte(fr,temp,fw);
-          //printf("%i ", image[w*row + col].r); //Debug Output
-          image[w*row + col].g = getByte(fr,temp,fw);
-          //printf("%i ", image[w*row + col].g); //Debug Output
-          image[w*row + col].b = getByte(fr,temp,fw);
-          //printf("%i  ", image[w*row + col].b); //Debug Output
+        image[w*row + col].r = getByte(fr,temp,fw);
+        //printf("%i ", image[w*row + col].r); //Debug Output
+        image[w*row + col].g = getByte(fr,temp,fw);
+        //printf("%i ", image[w*row + col].g); //Debug Output
+        image[w*row + col].b = getByte(fr,temp,fw);
+        //printf("%i  ", image[w*row + col].b); //Debug Output
         }
-        //printf("\n");
+      //printf("\n"); //Debug Output
       }
 
   }
@@ -251,28 +251,28 @@ int main(int argc, char *argv[])
 
 // Print image data to the output file in either ascii of Raw Data
   if(destType == 3) //Ascii
-  {
+    {
     int row, col;
     for (row = 0; row < h; row += 1)
       {
       for (col = 0; col < w; col += 1)
         {
-          fprintf(fw,"%i\n", image[w*row + col].r);
-
-          fprintf(fw, "%i\n", image[w*row + col].g);
-
-          fprintf(fw, "%i\n", image[w*row + col].b);
+        fprintf(fw,"%i\n", image[w*row + col].r);
+        fprintf(fw, "%i\n", image[w*row + col].g);
+        fprintf(fw, "%i\n", image[w*row + col].b);
         }
       }
-  }
+    }
   else if(destType == 6) //Raw data
-  {
+    {
     fwrite(image,sizeof(Pixel),w*h,fw);
-  }
-  else{
-
-  }
+    }
+  else
+    {
+    fprintf(stderr, "%s\n", "Error: output file type not supported.");
+    return(1);
+    }
   fclose(fw);
   fclose(fr);
-return (0);
-}
+  return (0);
+  }
